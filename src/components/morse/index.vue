@@ -16,41 +16,40 @@
 </template>
 
 <script lang="ts">
-const dico: Array<{ key: string; value: string }> = [
-  { key: "a", value: ".-" },
-  { key: "b", value: "-..." },
-  { key: "c", value: "-.-." },
-  { key: "d", value: "-.." },
-  { key: "e", value: "." },
-  { key: "f", value: "..-." },
-  { key: "g", value: "--." },
-  { key: "h", value: "...." },
-  { key: "i", value: ".." },
-  { key: "j", value: ".---" },
-  { key: "k", value: "-.-" },
-  { key: "l", value: ".-.." },
-  { key: "m", value: "--" },
-  { key: "n", value: "-." },
-  { key: "o", value: "---" },
-  { key: "p", value: ".--." },
-  { key: "q", value: "--.-" },
-  { key: "r", value: ".-." },
-  { key: "s", value: "..." },
-  { key: "t", value: "-" },
-  { key: "u", value: "..-" },
-  { key: "v", value: "...-" },
-  { key: "w", value: ".--" },
-  { key: "x", value: "-..-" },
-  { key: "y", value: "-.--" },
-  { key: "z", value: "--.." },
+const dico: Array<{ letter: string; code: string }> = [
+  { letter: "a", code: ".-" },
+  { letter: "b", code: "-..." },
+  { letter: "c", code: "-.-." },
+  { letter: "d", code: "-.." },
+  { letter: "e", code: "." },
+  { letter: "f", code: "..-." },
+  { letter: "g", code: "--." },
+  { letter: "h", code: "...." },
+  { letter: "i", code: ".." },
+  { letter: "j", code: ".---" },
+  { letter: "k", code: "-.-" },
+  { letter: "l", code: ".-.." },
+  { letter: "m", code: "--" },
+  { letter: "n", code: "-." },
+  { letter: "o", code: "---" },
+  { letter: "p", code: ".--." },
+  { letter: "q", code: "--.-" },
+  { letter: "r", code: ".-." },
+  { letter: "s", code: "..." },
+  { letter: "t", code: "-" },
+  { letter: "u", code: "..-" },
+  { letter: "v", code: "...-" },
+  { letter: "w", code: ".--" },
+  { letter: "x", code: "-..-" },
+  { letter: "y", code: "-.--" },
+  { letter: "z", code: "--.." },
 ];
 
 export default {
   data() {
     return {
-      morseInput: "..-",
-      //   sentences: ["ea", "eet", "it", "u"],
-      sentences: ["ea", "eet", "it", "u"],
+      morseInput: "...---...",
+      sentences: [],
       tmp: [],
     };
   },
@@ -59,48 +58,25 @@ export default {
   },
   methods: {
     loadSentences() {
-      const sentences = this.recursiveCheck(this.morseInput);
-
-      //   console.log(sentences[0]);
-      this.sentences = [];
-      sentences.forEach((element) => {
-        const res = this.buildSentence(element);
-
-        const result =
-          typeof res === "string"
-            ? res
-            : res?.filter((e) => typeof e === "string");
-        this.sentences = [...this.sentences, ...result];
-      });
-      //   console.log(sentences);
+      const array = [];
+      this.recursivCheck(this.morseInput.replace(/\s/g, ""), array);
+      this.sentences = array;
     },
-    recursiveCheck(input: string, output: string[]): string[] {
-      const elements = output || [];
-      dico.forEach((el) => {
-        const next = [];
-        if (input.startsWith(el.value)) {
-          next.push(el.key);
-          const sin = input.substring(el.value.length);
-          const retu = this.recursiveCheck(sin, next);
-          elements.push(retu);
+    recursivCheck(
+      currentText: string,
+      sentencesArray: string[],
+      currentSentence = ""
+    ) {
+      if (currentText.length === 0) sentencesArray.push(currentSentence);
+      dico.forEach((dicoEl) => {
+        if (currentText.startsWith(dicoEl.code)) {
+          this.recursivCheck(
+            currentText.substring(dicoEl.code.length),
+            sentencesArray,
+            currentSentence.concat(dicoEl.letter)
+          );
         }
       });
-      return elements;
-    },
-    buildSentence(element, sentences, sentence = ""): string {
-      const sents = sentences || [];
-      const [letter, ...rest] = element;
-      if (rest.length === 0) return sentence.concat(letter);
-
-      rest.forEach((el) => {
-        const test = this.buildSentence(el, sents, sentence.concat(letter));
-
-        if (test !== null) {
-          sents.push(test);
-        }
-      });
-
-      return sents;
     },
   },
 };
